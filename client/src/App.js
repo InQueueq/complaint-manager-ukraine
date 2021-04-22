@@ -14,10 +14,12 @@ class App extends Component {
                 <div className='App' style={{ height: '100%' }}>
                     <Navbar />
                     <Route exact path='/' />
-                    <div className='container' style={{ height: '100%' }}>
+                    <div className='container'>
                         {/* <Route exact path='/register' component={Register} />
                         <Route exact path='/login' component={Login} />
                         <Route exact path='/profile' component={Profile} /> */}
+                    </div>
+                    <div className='container' id='mapView'>
                         <Route exact path='/map' component={Map} />
                     </div>
                 </div>

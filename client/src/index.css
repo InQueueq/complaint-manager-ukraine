@@ -23,3 +23,17 @@ code {
 #root {
     height: 100%;
 }
+
+#mapView {
+    height: 92%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 100%;
+    }
+}
