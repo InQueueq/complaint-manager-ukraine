@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import Map from './map/Map';
-// import Login from './components/Login';
-// import Register from './components/Register';
-// import Profile from './components/Profile';
+import Login from './components/Login';
+import Register from './components/Register';
+import { Profile } from './components/Profile';
 
 class App extends Component {
     render() {
@@ -13,11 +13,11 @@ class App extends Component {
             <Router>
                 <div className='App' style={{ height: '100%' }}>
                     <Navbar />
-                    <Route exact path='/' />
                     <div className='container'>
-                        {/* <Route exact path='/register' component={Register} />
+                        <Route exact path='/' />
+                        <Route exact path='/register' component={Register} />
                         <Route exact path='/login' component={Login} />
-                        <Route exact path='/profile' component={Profile} /> */}
+                        <Route path='/profile' component={Profile} />
                     </div>
                     <div className='container' id='mapView'>
                         <Route exact path='/map' component={Map} />
