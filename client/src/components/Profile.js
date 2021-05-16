@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Switch, Route, useRouteMatch } from 'react-router-dom';
+import { Link, Switch, Route, useRouteMatch, useHistory } from 'react-router-dom';
 import { UserTypes, getKeyByValue } from '../utils/user-types';
 
 import { openProfile, editProfile } from './user-functions';
 
 const ProfileInfo = () => {
-    const [id, setId] = useState('');
     const [email, setEmail] = useState('');
     const [firstName, setfirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [organisation, setOrganisation] = useState('');
-    let [userTypeForm, setUserType] = useState('');
+    let [userTypeForm, setUserTypePage] = useState('');
 
-    let password;
-    let userType;
+    const history = useHistory();
+
+    const [password, setPassword] = useState('');
+    const [userType, setUserType] = useState('');
     const token = localStorage.token;
 
     useEffect(() => {
@@ -25,23 +26,21 @@ const ProfileInfo = () => {
         fetchData().then((response) => {
             const responseData = response.data;
 
-            setId(responseData.id);
-
             setfirstName(responseData.firstName);
 
             setLastName(responseData.lastName);
 
             setOrganisation(responseData.organisation);
 
-            userType = responseData.userType;
+            setPassword(responseData.password);
 
-            setUserType(getKeyByValue(UserTypes, userType));
+            setUserTypePage(getKeyByValue(UserTypes, userType));
 
             setEmail(responseData.email);
 
-            password = responseData.password;
+            setUserType(responseData.userType);
         });
-    }, [token]);
+    }, [token, userType]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -65,19 +64,22 @@ const ProfileInfo = () => {
 
         const response = await editProfile(user, token);
 
-        console.log(response.data);
-
         const { updatedUser } = response.data;
 
-        console.log(updatedUser);
-
-        if (updatedUser) this.props.history.push('/profile/info');
+        if (updatedUser) {
+            history.push({
+                pathname: '/profile',
+            });
+        }
     };
 
     return (
         <div className='container'>
             <div className='row'>
                 <div className='col-md-6 mt-5 mx-auto'>
+                    <div style={{ marginBottom: '50px' }}>
+                        <h3>User type is: {userTypeForm}</h3>
+                    </div>
                     <form noValidate onSubmit={handleSubmit}>
                         <h1 className='h3 mb-3 font-weight-normal'>Edit profile</h1>
                         <div className='form-group row'>
@@ -195,75 +197,5 @@ const Profile = () => {
         </div>
     );
 };
-// class Profile extends Component {
-// constructor() {
-//     super();
-//     this.state = {
-//         id: '',
-//         firstName: '',
-//         lastName: '',
-//         organisation: '',
-//         userType: '',
-//     };
-// }
-// async componentDidMount() {
-//     const token = localStorage.token;
 
-//     const response = await openProfile(token);
-
-//     const responseData = response.data;
-
-//     this.setState({
-//         ...responseData,
-//         userType: getKeyByValue(UserTypes, responseData.userType),
-//     });
-// }
-
-//     onChange = (e) => {
-//         this.setState({ [e.target.name]: e.target.value });
-//     };
-
-//     render() {
-//         return (
-//             <div>
-//                 <h2>Profile</h2>
-//                 <Switch>
-//                     <Route path='/info'>
-//                         <ProfileInfo />
-//                     </Route>
-//                     <Route path='/complaints'>
-//                         <MyComplaints />
-//                     </Route>
-//                 </Switch>
-//             </div>
-//             /* <ul class='list-group'>
-//                     <li class='list-group-item'>
-//                         <a id='profile' href='#'>
-//                             Profile
-//                         </a>
-//                     </li>
-//                     <li class='list-group-item'>
-//                         <a id='account' href='#'>
-//                             Account
-//                         </a>
-//                     </li>
-//                     <li class='list-group-item'>
-//                         <a id='activity' href='#'>
-//                             Activity
-//                         </a>
-//                     </li>
-//                     <li class='list-group-item'>
-//                         <a id='security' href='#'>
-//                             Security
-//                         </a>
-//                     </li>
-//                     <li class='list-group-item'>
-//                         <a id='notifications' href='#'>
-//                             Notifications
-//                         </a>
-//                     </li>
-//                 </ul> */
-//         );
-//     }
-// }
 export { Profile };

@@ -39,6 +39,16 @@ class Navbar extends Component {
             </ul>
         );
 
+        const map = (
+            <ul className='navbar-nav'>
+                <li className='nav-item'>
+                    <Link to='/map' className='nav-link'>
+                        Map
+                    </Link>
+                </li>
+            </ul>
+        );
+
         return (
             <nav className='navbar navbar-expand-lg navbar-dark bg-dark rounded'>
                 <button
@@ -57,13 +67,8 @@ class Navbar extends Component {
                     className='collapse navbar-collapse justify-content-md-center'
                     id='navbarsExample10'
                 >
-                    <ul className='navbar-nav'>
-                        <li className='nav-item'>
-                            <Link to='/map' className='nav-link'>
-                                Map
-                            </Link>
-                        </li>
-                    </ul>
+                    {' '}
+                    {localStorage.token ? map : null}
                     {localStorage.token ? userLink : loginRegLink}
                 </div>
             </nav>

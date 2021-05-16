@@ -54,3 +54,13 @@ export const editProfile = async (user, token) => {
 
     return res;
 };
+
+export const validateToken = async (token) => {
+    const res = await axios.get('/users/user/token', {
+        headers: {
+            Authorization: token,
+        },
+    });
+
+    return res;
+};

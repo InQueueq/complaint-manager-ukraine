@@ -80,18 +80,39 @@ users.put('/profile/info', async (req, res) => {
         userType: req.body.userType,
     };
 
-    const userWithEditedEmail = await User.findOne({ email: userData.email });
+    const userToUpdate = await User.findOne({ _id: decoded.id });
 
-    if (!userWithEditedEmail) {
-        const user = await User.findOneAndUpdate({ _id: decoded.id }, userData);
+    if (userToUpdate.email !== userData.email) {
+        const userWithEditedEmail = await User.findOne({ email: userData.email });
+
+        if (userWithEditedEmail) res.json({ message: 'User with such email already exists!' });
+    }
+
+    const user = await User.findOneAndUpdate({ _id: decoded.id }, userData);
+
+    if (user) {
+        res.json({ message: 'User successfully edited!', updatedUser: user });
+    } else {
+        res.json({ message: 'User could not be updated!' });
+    }
+});
+
+users.get('/user/token', async (req, res) => {
+    try {
+        if (req.headers['authorization'] === 'undefined') {
+            res.status(403).send('Forbidden');
+            return;
+        }
+        const decoded = jwt.verify(req.headers['authorization'], process.env.SECRET_KEY);
+        const user = await User.findOne({ _id: decoded.id });
 
         if (user) {
-            res.json({ message: 'User successfully edited!', updatedUser });
+            res.json({ message: 'Token is valid' });
         } else {
-            res.json({ message: 'User could not be updated!' });
+            res.status(403).send('Forbidden');
         }
-    } else {
-        res.json({ message: 'User with such email already exists!' });
+    } catch (e) {
+        res.status(403).send('Forbidden');
     }
 });
 
