@@ -116,4 +116,16 @@ users.get('/user/token', async (req, res) => {
     }
 });
 
+users.get('/:id', async (req, res) => {
+    const id = req.params.id;
+
+    const user = await User.findOne({ _id: id });
+
+    if (user) {
+        res.json({ message: 'User is found!', user });
+    } else {
+        res.json({ message: 'User is not found' });
+    }
+});
+
 module.exports = users;

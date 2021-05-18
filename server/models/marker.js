@@ -9,9 +9,10 @@ const MarkerSchema = new mongoose.Schema({
     creator: mongoose.Schema.Types.ObjectId,
     inProcess: Boolean,
     region: mongoose.Schema.Types.ObjectId,
-    rating: Number
+    rating: Number,
+    createdAt: Number,
 });
 
-const Marker =  mongoose.model('markers', MarkerSchema);
+const Marker = mongoose.model('markers', MarkerSchema);
 
 module.exports = Marker;

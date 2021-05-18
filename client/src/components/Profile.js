@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import jwt_decode from 'jwt-decode';
 import { Link, Switch, Route, useRouteMatch, useHistory } from 'react-router-dom';
-import { UserTypes, getKeyByValue } from '../utils/user-types';
 
-import { openProfile, editProfile } from './user-functions';
+import { UserTypes, getKeyByValue } from '../utils/user-types';
+import { openProfile, editProfile, getMarkersOfUser } from './user-functions';
 
 const ProfileInfo = () => {
     const [email, setEmail] = useState('');
@@ -162,33 +163,92 @@ const ProfileInfo = () => {
     );
 };
 
-const MyComplaints = () => (
-    <div>
-        <h2>Mock</h2>;
-    </div>
+const MyComplaints = (complaints) => (
+    <ul className='card'>
+        {complaints.complaints.length ? (
+            complaints.complaints.map((complaint) => (
+                <div>
+                    <li className='font-weight-bold pl-2 pr-5 mt-2 mb-2 row' key={complaint._id}>
+                        <h5 className='col-sm'>{complaint.name}</h5>
+                        <h5 className='col-sm'>
+                            Is in progress? {complaint.inProcess ? 'Yes' : 'no'}
+                        </h5>
+                        <h5 className='col-sm'>Rating: {complaint.rating}</h5>
+                        <h5 className='ml-auto'>
+                            Created at: {new Date(complaint.createdAt).toDateString()}
+                        </h5>
+                    </li>
+                    <div
+                        style={{
+                            width: '95%',
+                            borderBottom: '1px solid black',
+                            position: 'absolute',
+                        }}
+                    ></div>
+                </div>
+            ))
+        ) : (
+            <label className='font-weight-bold'> You have no complaints</label>
+        )}
+    </ul>
 );
 
 const Profile = () => {
     let match = useRouteMatch();
 
+    const [complaints, setComplaints] = useState([]);
+
+    const token = localStorage.token;
+
+    const currentUserId = jwt_decode(token).id;
+
+    useEffect(() => {
+        async function fetchData() {
+            const { markers } = (await getMarkersOfUser(currentUserId)).data;
+            return markers;
+        }
+        fetchData().then((res) => {
+            setComplaints(res);
+        });
+    }, []);
+
     return (
         <div className='container'>
-            <div className='d-flex justify-content-center'>
-                <h2>Profile</h2>
+            <div className='d-flex justify-content-center mb-3'>
+                <h2>PROFILE</h2>
             </div>
 
             <ul style={{ display: 'flex', justifyContent: 'center' }}>
-                <li style={{ display: 'inline' }}>
-                    <Link to={`${match.url}/complaints`}>My Complaints</Link>
+                <li
+                    style={{
+                        display: 'inline',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'gray',
+                        padding: '1em 1.5em',
+                    }}
+                >
+                    <Link style={{ color: 'white' }} to={`${match.url}/complaints`}>
+                        My Complaints
+                    </Link>
                 </li>
-                <li style={{ display: 'inline', paddingLeft: '50px' }}>
-                    <Link to={`${match.url}/info`}>My Profile Information</Link>
+                <li
+                    style={{
+                        display: 'inline',
+                        paddingLeft: '10%',
+                        textTransform: 'uppercase',
+                        backgroundColor: 'gray',
+                        padding: '1em 1.5em',
+                    }}
+                >
+                    <Link style={{ color: 'white' }} to={`${match.url}/info`}>
+                        My Profile Information
+                    </Link>
                 </li>
             </ul>
 
             <Switch>
                 <Route path={`${match.path}/complaints`}>
-                    <MyComplaints />
+                    <MyComplaints complaints={complaints} />
                 </Route>
                 <Route path={`${match.path}/info`}>
                     <ProfileInfo />

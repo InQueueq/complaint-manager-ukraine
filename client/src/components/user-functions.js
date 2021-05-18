@@ -64,3 +64,94 @@ export const validateToken = async (token) => {
 
     return res;
 };
+
+export const getRegionId = async (regionName) => {
+    const res = await axios.get('/regions', {
+        params: {
+            regionName,
+        },
+    });
+
+    return res;
+};
+
+export const createComplaint = async (complaint) => {
+    const res = await axios.post('complaints/', {
+        name: complaint.name,
+        description: complaint.description,
+        longitude: complaint.longitude,
+        latitude: complaint.latitude,
+        creator: complaint.creator,
+        inProcess: complaint.inProcess,
+        region: complaint.region,
+        createdAt: complaint.createdAt,
+        rating: 0,
+    });
+
+    return res;
+};
+
+export const getMarkers = async () => {
+    const res = await axios.get('complaints/');
+
+    return res;
+};
+
+export const getMarkersOfUser = async (userId) => {
+    const res = await axios.get(`/complaints/user/${userId}`);
+
+    return res;
+};
+
+export const getMarker = async (markerId) => {
+    const res = await axios.get(`complaints/${markerId}`);
+
+    return res;
+};
+
+export const getMarkerImages = async (markerId) => {
+    const res = await axios.get(`images/${markerId}`);
+
+    return res;
+};
+
+export const getUser = async (userId) => {
+    const res = await axios.get(`users/${userId}`);
+
+    return res;
+};
+
+export const processImages = async (images, markerId, creatorId) => {
+    let fd = new FormData();
+
+    for (let i = 0; i < images.length; i++) {
+        fd.append('file', images[i], `${markerId}_${images[i].name}`);
+    }
+
+    const res = await axios.post('images/', fd, {
+        headers: {
+            'content-type': 'multipart/form-data',
+        },
+    });
+
+    return res;
+};
+
+export const changeRating = async (like) => {
+    const res = await axios.post('likes/', {
+        isPositive: like.isPositive,
+        markerId: like.markerId,
+        userId: like.userId,
+    });
+
+    return res;
+};
+
+export const updateMarkerStatus = async (markerId, inProcess) => {
+    const res = await axios.post('complaints/resolve', {
+        _id: markerId,
+        inProcess: inProcess,
+    });
+
+    return res;
+};
