@@ -101,7 +101,7 @@ const MapComponent = () => {
         async function fetchData() {
             const markers = (await getMarkers()).data.markers;
 
-            return [markers, geolocation, geocode];
+            return [markers];
         }
         fetchData().then((res) => {
             setMarkers((oldArray) => [...oldArray, ...res[0]]);

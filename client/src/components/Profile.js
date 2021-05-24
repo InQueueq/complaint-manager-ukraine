@@ -3,7 +3,7 @@ import jwt_decode from 'jwt-decode';
 import { Link, Switch, Route, useRouteMatch, useHistory } from 'react-router-dom';
 
 import { UserTypes, getKeyByValue } from '../utils/user-types';
-import { openProfile, editProfile, getMarkersOfUser } from './user-functions';
+import { openProfile, editProfile, getMarkersOfUser, validateToken } from './user-functions';
 
 const ProfileInfo = () => {
     const [email, setEmail] = useState('');
@@ -198,21 +198,38 @@ const Profile = () => {
 
     const [complaints, setComplaints] = useState([]);
 
-    const token = localStorage.token;
+    const [access, setAccess] = useState(true);
 
-    const currentUserId = jwt_decode(token).id;
+    const token = localStorage.token;
 
     useEffect(() => {
         async function fetchData() {
+            await validateToken(token);
+
+            const currentUserId = jwt_decode(token).id;
+
             const { markers } = (await getMarkersOfUser(currentUserId)).data;
             return markers;
         }
-        fetchData().then((res) => {
-            setComplaints(res);
-        });
+        fetchData()
+            .then((res) => {
+                setComplaints(res);
+            })
+            .catch((error) => {
+                setAccess(false);
+                throw error;
+            });
     }, []);
 
-    return (
+    const forbidden = (
+        <div style={{ textAlign: 'center', marginTop: '25%' }}>
+            <h1>FORBIDDEN</h1>
+        </div>
+    );
+
+    return !access ? (
+        forbidden
+    ) : (
         <div className='container'>
             <div className='d-flex justify-content-center mb-3'>
                 <h2>PROFILE</h2>
