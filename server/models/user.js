@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
     password: String,
     organisation: String,
     userType: Number,
+    isActive: Boolean,
 });
 
 const User = mongoose.model('users', UserSchema);

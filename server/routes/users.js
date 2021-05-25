@@ -4,6 +4,9 @@ const mongodb = require('mongodb');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
+const mailgun = require('mailgun-js');
+const mgun = mailgun({ apiKey: process.env.MAILGUN_URI, domain: process.env.MAILGUN_DOMAIN });
+
 const User = require('../models/user.js');
 
 process.env.SECRET_KEY = 'secret';
@@ -20,6 +23,7 @@ users.post('/register', async (req, res) => {
         lastName: req.body.lastName,
         organisation: req.body.organisation,
         userType: req.body.userType,
+        isActive: false,
     };
 
     const user = await User.findOne({ email: req.body.email }).exec();
@@ -31,7 +35,36 @@ users.post('/register', async (req, res) => {
 
         const createdUser = await User.create(userData);
 
-        res.json({ message: 'User successfully created!', createdUser });
+        const requestPayload = {
+            id: createdUser._id,
+        };
+
+        const token = jwt.sign(requestPayload, process.env.SECRET_KEY, {
+            expiresIn: 259200,
+        });
+
+        const activateEmailData = {
+            from: 'mailgun@sandboxf07cb7ab3c65458885387544b6e7ffcb.mailgun.org',
+            to: userData.email,
+            subject: 'Activate your account',
+            html: `
+            <h1>Please activate your account on complaint manager Ukraine </h1>
+            <a>${process.env.CLIENT_URL}/activate/${token}</a>
+            `,
+        };
+
+        mgun.messages().send(activateEmailData, async (error, body) => {
+            if (error) {
+                return res.json({ message: 'Error sending email!' });
+            }
+
+            return res.json({
+                message: 'Email has been sent, please activate your account!',
+                createdUser,
+            });
+        });
+
+        // res.json({ message: 'User successfully created!', createdUser });
     } else {
         res.json({ message: 'There is already a user with the same email!' });
     }
@@ -45,7 +78,7 @@ users.post('/login', async (req, res) => {
                 id: user._id,
             };
             const token = jwt.sign(requestPayload, process.env.SECRET_KEY, {
-                expiresIn: 1440,
+                expiresIn: 86400,
             });
             res.json({ message: 'User logged in', token });
         } else {
@@ -54,6 +87,32 @@ users.post('/login', async (req, res) => {
     } else {
         res.json({ message: "User doesn't exist" });
     }
+});
+
+users.patch('/activate', async (req, res) => {
+    const userData = {
+        id: req.body.id,
+        isActive: req.body.isActive,
+    };
+
+    const user = await User.findOneAndUpdate(
+        { _id: userData.id },
+        { $set: { isActive: userData.isActive } },
+    );
+
+    res.json({ message: 'User activated!', activatedUser: user });
+});
+
+users.post('/isActivated', async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user.isActive) {
+        res.status(403).send('Forbidden');
+        return;
+    }
+    res.json({ message: 'User is activated' });
 });
 
 users.get('/profile/info', async (req, res) => {

@@ -65,6 +65,23 @@ export const validateToken = async (token) => {
     return res;
 };
 
+export const activateUser = async (id) => {
+    const res = await axios.patch('/users/activate', {
+        id,
+        isActive: true,
+    });
+
+    return res;
+};
+
+export const isActivated = async (email) => {
+    const res = await axios.post('/users/isActivated', {
+        email,
+    });
+
+    return res;
+};
+
 export const getRegionId = async (regionName) => {
     const res = await axios.get('/regions', {
         params: {

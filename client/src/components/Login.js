@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
-import { login } from './user-functions';
+import { login, isActivated } from './user-functions';
+
+const forbidden = (
+    <div style={{ textAlign: 'center', marginTop: '25%' }}>
+        <h1>FORBIDDEN</h1>
+    </div>
+);
 
 class Login extends Component {
     constructor() {
@@ -7,6 +13,7 @@ class Login extends Component {
         this.state = {
             email: '',
             password: '',
+            access: true,
         };
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -14,23 +21,32 @@ class Login extends Component {
     onChange(e) {
         this.setState({ [e.target.name]: e.target.value });
     }
+
     async onSubmit(e) {
-        e.preventDefault();
-        const user = {
-            email: this.state.email,
-            password: this.state.password,
-        };
+        try {
+            e.preventDefault();
+            const user = {
+                email: this.state.email,
+                password: this.state.password,
+            };
 
-        const response = await login(user);
+            await isActivated(user.email);
 
-        const { token } = response.data;
+            const response = await login(user);
 
-        if (token) {
-            this.props.history.push('/profile');
+            const { token } = response.data;
+
+            if (token) {
+                this.props.history.push('/profile');
+            }
+        } catch (error) {
+            this.setState({
+                access: false,
+            });
         }
     }
     render() {
-        return (
+        return this.state.access ? (
             <div className='container'>
                 <div className='row'>
                     <div className='col-md-6 mt-5 mx-auto'>
@@ -79,6 +95,8 @@ class Login extends Component {
                     </div>
                 </div>
             </div>
+        ) : (
+            forbidden
         );
     }
 }

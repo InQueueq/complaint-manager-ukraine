@@ -53,6 +53,8 @@ class Register extends Component {
 
         const response = await register(user);
 
+        console.log(response);
+
         const { createdUser } = response.data;
 
         if (createdUser) this.props.history.push('/login');
