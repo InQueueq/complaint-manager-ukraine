@@ -1,3 +1,29 @@
+//Region Markers
+import Lviv from './images/Lviv.png';
+import Volyn from './images/Volyn.png';
+import Rivne from './images/Rivne.png';
+import Chernivtsi from './images/Chernivtsi.png';
+import Zakarpattia from './images/Zakarpattia.png';
+import Kyiv from './images/Kyiv.png';
+import Cherkasy from './images/Cherkasy.png';
+import Kharkiv from './images/Kharkiv.png';
+import Odessa from './images/Odessa.png';
+import Donetsk from './images/Donetsk.png';
+import Vinnytsia from './images/Vinnytsia.png';
+import Chernihiv from './images/Chernihiv.png';
+import Zhytomyr from './images/Zhytomyr.png';
+import Kirovohrad from './images/Kirovohrad.png';
+import Ternopil from './images/Ternopil.png';
+import IvanoFrankivsk from './images/IvanoFrankivsk.png';
+import Mykolaiv from './images/Mykolaiv.png';
+import Khmelnytskyi from './images/Khmelnytskyi.png';
+import Luhansk from './images/Luhansk.png';
+import Kherson from './images/Kherson.png';
+import Dnipropetrovsk from './images/Dnipropetrovsk.png';
+import Zaporizhia from './images/Zaporizhia.png';
+import Poltava from './images/Poltava.png';
+import Sumy from './images/Sumy.png';
+
 import React, { Component, useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { useHistory } from 'react-router-dom';
@@ -13,6 +39,7 @@ import 'react-gallery-carousel/dist/index.css';
 
 import userMarkerImage from './images/user-marker.png';
 import complaintMarkerImage from './images/complaint-marker.png';
+
 import resolvedComplaintMarkerImage from './images/resolved-complaint-marker.png';
 import './Map.css';
 
@@ -22,14 +49,42 @@ import {
     validateToken,
     getRegionId,
     createComplaint,
-    getMarkers,
+    getMarkersForRegion,
     processImages,
     getMarker,
     getMarkerImages,
     getUser,
     changeRating,
     updateMarkerStatus,
+    getRegions,
 } from '../components/user-functions';
+
+const RegionImages = {
+    Lviv,
+    Volyn,
+    Rivne,
+    Chernivtsi,
+    Zakarpattia,
+    Kyiv,
+    Cherkasy,
+    Kharkiv,
+    Odessa,
+    Donetsk,
+    Vinnytsia,
+    Chernihiv,
+    Zhytomyr,
+    Kirovohrad,
+    Ternopil,
+    IvanoFrankivsk,
+    Mykolaiv,
+    Khmelnytskyi,
+    Luhansk,
+    Kherson,
+    Dnipropetrovsk,
+    Zaporizhia,
+    Poltava,
+    Sumy,
+};
 
 const mapStyle = {
     height: '100%',
@@ -72,6 +127,7 @@ const MapComponent = () => {
     const [complaintDescription, setComplaintDescription] = useState('');
     const [selectedImages, setSelectedImages] = useState([]);
     const [markers, setMarkers] = useState([]);
+    const [regionMarkers, setRegionMarkers] = useState([]);
     const [geolocation, setGeolocation] = useState(undefined);
     const [geocode, setGeocode] = useState(undefined);
 
@@ -99,12 +155,38 @@ const MapComponent = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const markers = (await getMarkers()).data.markers;
+            const geolocation = await getGeolocation();
+            const geocode = await getGeocode(geolocation);
 
-            return [markers];
+            let regionName;
+            for (let i = 0; i < geocode.length; i++) {
+                if (geocode[i].types[0] === 'administrative_area_level_1') {
+                    regionName = geocode[i].address_components[0].long_name;
+                }
+            }
+
+            const regionId = (await getRegionId(regionName)).data._id;
+
+            const markers = (await getMarkersForRegion(regionId)).data.markers;
+
+            const regionMarkersDb = (await getRegions()).regions;
+
+            for (let j = 0; j < regionMarkersDb.length; j++) {
+                if (regionMarkersDb[j].name === regionName) {
+                    regionMarkersDb.splice(j, 1);
+                    break;
+                }
+            }
+
+            return [markers, geolocation, geocode, regionMarkersDb];
         }
         fetchData().then((res) => {
             setMarkers((oldArray) => [...oldArray, ...res[0]]);
+            setGeolocation(res[1]);
+
+            setGeocode(res[2]);
+
+            setRegionMarkers(res[3]);
         });
     }, []);
 
@@ -198,6 +280,21 @@ const MapComponent = () => {
         );
 
         handleShowMarker();
+    };
+
+    const handleRegionMarkerClick = async (markerId) => {
+        console.log(markerId);
+        const markersForRegion = (await getMarkersForRegion(markerId)).data.markers;
+
+        setMarkers((oldMarkers) => [...oldMarkers, ...markersForRegion]);
+
+        for (let j = 0; j < regionMarkers.length; j++) {
+            if (regionMarkers[j]._id === markerId) {
+                regionMarkers.splice(j, 1);
+                break;
+            }
+        }
+        setRegionMarkers([...regionMarkers]);
     };
 
     const handleRatingChange = async (isPositive) => {
@@ -402,9 +499,7 @@ const MapComponent = () => {
             }}
         >
             {createIsClicked ? ModalWindow : null}
-
             {markerIsClicked ? ModalWindowMarker : null}
-
             {markers.map((mapMarker) => {
                 return (
                     <Marker
@@ -422,6 +517,22 @@ const MapComponent = () => {
                                 : resolvedComplaintMarkerImage
                         }
                         onClick={() => handleMarkerClick(mapMarker._id)}
+                    ></Marker>
+                );
+            })}
+            {regionMarkers.map((mapMarker) => {
+                return (
+                    <Marker
+                        key={mapMarker._id}
+                        onLoad={(marker) => {
+                            marker.setPosition({
+                                lat: mapMarker.latitude,
+                                lng: mapMarker.longitude,
+                            });
+                            marker.setAnimation(window.google.maps.Animation.BOUNCE);
+                        }}
+                        icon={RegionImages[mapMarker.name.split(' ')[0].replace('-', '')]}
+                        onClick={() => handleRegionMarkerClick(mapMarker._id)}
                     ></Marker>
                 );
             })}

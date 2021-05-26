@@ -21,4 +21,16 @@ regions.get('/', async (req, res) => {
     }
 });
 
+regions.get('/all', async (req, res) => {
+    const regions = await Region.find();
+
+    console.log(regions);
+
+    if (regions.length) {
+        res.json({ regions });
+    } else {
+        res.send('No regions were found');
+    }
+});
+
 module.exports = regions;

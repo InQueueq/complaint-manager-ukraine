@@ -114,10 +114,22 @@ export const getMarkers = async () => {
     return res;
 };
 
+export const getMarkersForRegion = async (regionId) => {
+    const res = await axios.get(`complaints/region/${regionId}`);
+
+    return res;
+};
+
 export const getMarkersOfUser = async (userId) => {
     const res = await axios.get(`/complaints/user/${userId}`);
 
     return res;
+};
+
+export const getRegions = async () => {
+    const res = await axios.get('/regions/all');
+
+    return res.data;
 };
 
 export const getMarker = async (markerId) => {

@@ -60,6 +60,13 @@ complaints.get('/user/:id', async (req, res) => {
     res.json({ markers });
 });
 
+complaints.get('/region/:regionId', async (req, res) => {
+    const { regionId } = req.params;
+    const markers = await Marker.find({ region: regionId });
+
+    res.json({ markers });
+});
+
 complaints.get('/:id', async (req, res) => {
     const id = req.params.id;
 
