@@ -155,7 +155,7 @@ const MapComponent = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const geolocation = await getGeolocation();
+            const geolocation = { lat: 49.55589, lng: 25.60556 }; // await getGeolocation();
             const geocode = await getGeocode(geolocation);
 
             let regionName;
@@ -483,12 +483,12 @@ const MapComponent = () => {
                 controlText.style.paddingLeft = '5px';
                 controlText.style.paddingRight = '5px';
                 controlText.style.fontWeight = '30px';
-                controlText.innerHTML = 'CREATE MARKER';
+                controlText.innerHTML = 'Create Complaint';
                 controlUI.appendChild(controlText);
 
                 map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(controlUI);
 
-                const geolocation = await getGeolocation();
+                const geolocation = { lat: 49.55589, lng: 25.60556 }; // await getGeolocation();
                 const geocode = await getGeocode(geolocation);
 
                 setGeolocation(geolocation);
@@ -538,7 +538,7 @@ const MapComponent = () => {
             })}
             <Marker
                 onLoad={async (marker) => {
-                    const latLng = await getGeolocation();
+                    const latLng = { lat: 49.55589, lng: 25.60556 }; //await getGeolocation();
                     marker.setPosition(latLng);
                     marker.setAnimation(window.google.maps.Animation.BOUNCE);
                 }}
