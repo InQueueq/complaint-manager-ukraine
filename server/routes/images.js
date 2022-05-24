@@ -68,4 +68,18 @@ images.get('/:id', async (req, res) => {
     }
 });
 
+images.post('/complaints/remove', async (req, res) => {
+    const { ids } = req.body;
+
+    const markerIds = ids.map((item) => item._id);
+
+    await Image.deleteMany({
+        markerId: {
+            $in: markerIds,
+        },
+    });
+
+    res.json({ result: true });
+});
+
 module.exports = images;

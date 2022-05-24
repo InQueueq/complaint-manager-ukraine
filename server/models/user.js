@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
     organisation: String,
     userType: Number,
     isActive: Boolean,
+    isApprovedAuthority: Boolean,
 });
 
 const User = mongoose.model('users', UserSchema);

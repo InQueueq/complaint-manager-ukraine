@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const mongodb = require('mongodb');
-const bcrypt = require('bcrypt');
+const moment = require('moment');
 
 const Marker = require('../models/marker.js');
 
@@ -19,6 +18,7 @@ complaints.post('/', async (req, res) => {
         latitude: req.body.latitude,
         creator: req.body.creator,
         inProcess: req.body.inProcess,
+        isMilitary: req.body.isMilitary,
         region: req.body.region,
         rating: req.body.rating,
         createdAt: req.body.createdAt,
@@ -41,7 +41,7 @@ complaints.post('/resolve', async (req, res) => {
 
     await Marker.updateOne(
         { _id: complaintData._id },
-        { $set: { inProcess: complaintData.inProcess } },
+        { $set: { inProcess: complaintData.inProcess, expireAt: moment().add(10, 'days') } },
     );
 
     res.json({ message: 'Success!' });
@@ -58,6 +58,22 @@ complaints.get('/user/:id', async (req, res) => {
     const markers = await Marker.find({ creator: id });
 
     res.json({ markers });
+});
+
+complaints.delete('/user/:id', async (req, res) => {
+    const id = req.params.id;
+
+    const markers = await Marker.find({ creator: id }, { id: 1 });
+    await Marker.deleteMany({ creator: id });
+
+    res.json({ markers });
+});
+
+complaints.get('/count/:id', async (req, res) => {
+    const id = req.params.id;
+    const count = await Marker.count({ creator: id, inProcess: true });
+
+    res.json({ count });
 });
 
 complaints.get('/region/:regionId', async (req, res) => {

@@ -27,11 +27,13 @@ const regions = require('./routes/regions');
 const complaints = require('./routes/complaints');
 const images = require('./routes/images');
 const likes = require('./routes/likes');
+const admin = require('./routes/admin');
 
 app.use('/users', users);
 app.use('/regions', regions);
 app.use('/complaints', complaints);
 app.use('/images', images);
 app.use('/likes', likes);
+app.use('/admin', admin);
 
 app.listen(PORT, () => console.log(`Server started on ${PORT} port`));

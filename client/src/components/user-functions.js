@@ -100,6 +100,7 @@ export const createComplaint = async (complaint) => {
         latitude: complaint.latitude,
         creator: complaint.creator,
         inProcess: complaint.inProcess,
+        isMilitary: complaint.isMilitary,
         region: complaint.region,
         createdAt: complaint.createdAt,
         rating: 0,
@@ -145,7 +146,7 @@ export const getMarkerImages = async (markerId) => {
 };
 
 export const getUser = async (userId) => {
-    const res = await axios.get(`users/${userId}`);
+    const res = await axios.get(`/users/${userId}`);
 
     return res;
 };
@@ -183,4 +184,64 @@ export const updateMarkerStatus = async (markerId, inProcess) => {
     });
 
     return res;
+};
+
+export const getUnresolvedMarkersCountByUserId = async (userId) => {
+    const res = await axios.get(`/complaints/count/${userId}`);
+
+    return res.data;
+};
+
+export const getUnapprovedAuthorities = async () => {
+    const res = await axios.get(`/admin/authorities/unapproved`);
+
+    return res.data;
+};
+
+export const getAuthorities = async () => {
+    const res = await axios.get(`/admin/authorities`);
+
+    return res.data;
+};
+
+export const approveAuthorityByUserId = async (userId) => {
+    const res = await axios.post('/admin/authorities/approve', {
+        _id: userId,
+    });
+
+    return res.data;
+};
+
+export const deleteAuthorityByUserId = async (userId) => {
+    const res = await axios.delete(`/admin/authorities/${userId}`);
+
+    return res.data;
+};
+
+export const deleteMarkersByUserId = async (userId) => {
+    const res = await axios.delete(`/complaints/user/${userId}`);
+
+    return res.data;
+};
+
+export const deleteImagesByMarkerIds = async (markerIds) => {
+    const res = await axios.post(`/images/complaints/remove`, {
+        ids: markerIds,
+    });
+
+    return res.data;
+};
+
+export const deleteLikesByMarkerIds = async (markerIds) => {
+    const res = await axios.post(`/likes/complaints/remove`, {
+        ids: markerIds,
+    });
+
+    return res.data;
+};
+
+export const deleteLikesByUserId = async (userId) => {
+    const res = await axios.delete(`/likes/authorities/${userId}`);
+
+    return res.data;
 };

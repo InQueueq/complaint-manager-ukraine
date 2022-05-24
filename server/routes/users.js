@@ -24,6 +24,7 @@ users.post('/register', async (req, res) => {
         organisation: req.body.organisation,
         userType: req.body.userType,
         isActive: false,
+        isApprovedAuthority: false,
     };
 
     const user = await User.findOne({ email: req.body.email }).exec();
@@ -49,13 +50,14 @@ users.post('/register', async (req, res) => {
             subject: 'Activate your account',
             html: `
             <h1>Please activate your account on complaint manager Ukraine </h1>
-            <a>${process.env.CLIENT_URL}/activate/${token}</a>
+            <a href="${process.env.CLIENT_URL}/activate/${token}">Click here to activate</a>
             `,
         };
 
         mgun.messages().send(activateEmailData, async (error, body) => {
             if (error) {
-                return res.json({ message: 'Error sending email!' });
+                res.status(400).send({ message: 'Error sending email' });
+                return;
             }
 
             return res.json({
@@ -66,7 +68,7 @@ users.post('/register', async (req, res) => {
 
         // res.json({ message: 'User successfully created!', createdUser });
     } else {
-        res.json({ message: 'There is already a user with the same email!' });
+        res.status(400).send({ message: 'There is already a user with the same email!' });
     }
 });
 
@@ -108,10 +110,16 @@ users.post('/isActivated', async (req, res) => {
 
     const user = await User.findOne({ email });
 
+    if (!user) {
+        res.status(403).send('Forbidden');
+        return;
+    }
+
     if (!user.isActive) {
         res.status(403).send('Forbidden');
         return;
     }
+
     res.json({ message: 'User is activated' });
 });
 

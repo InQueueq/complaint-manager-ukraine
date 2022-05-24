@@ -71,4 +71,28 @@ likes.post('/', async (req, res) => {
     }
 });
 
+likes.post('/complaints/remove', async (req, res) => {
+    const { ids } = req.body;
+
+    const markerIds = ids.map((item) => item._id);
+
+    await Like.deleteMany({
+        markerId: {
+            $in: markerIds,
+        },
+    });
+
+    res.json({ result: true });
+});
+
+likes.delete('/authorities/:id', async (req, res) => {
+    const id = req.params.id;
+
+    const likes = await Like.findOne({ userId: id }, { id: 1 });
+
+    await Like.deleteMany({ userId: id });
+
+    res.json({ likes });
+});
+
 module.exports = likes;
