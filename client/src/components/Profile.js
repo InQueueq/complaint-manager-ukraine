@@ -218,7 +218,7 @@ const Profile = () => {
                 setAccess(false);
                 throw error;
             });
-    }, []);
+    }, [token]);
 
     const forbidden = (
         <div style={{ textAlign: 'center', marginTop: '25%' }}>

@@ -12,16 +12,20 @@ const Navbar = (props) => {
 
     useEffect(() => {
         async function fetchData() {
-            await validateToken(token);
-            const currentUserId = jwt_decode(token).id;
+            if (token) {
+                await validateToken(token);
+                const currentUserId = jwt_decode(token).id;
 
-            const { user } = (await getUser(currentUserId)).data;
+                const { user } = (await getUser(currentUserId)).data;
 
-            return user;
+                return user;
+            }
+
+            return null;
         }
         fetchData()
             .then((res) => {
-                if (UserTypes['ADMIN'] === res.userType) {
+                if (res && UserTypes['ADMIN'] === res.userType) {
                     setIsAdmin(true);
                 }
             })

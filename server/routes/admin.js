@@ -16,4 +16,14 @@ admin.get('/authorities/unapproved', async (req, res) => {
     res.json({ authorities });
 });
 
+admin.post('/authorities/approve', async (req, res) => {
+    const authorityId = {
+        _id: req.body._id,
+    };
+
+    await User.updateOne({ _id: authorityId._id }, { $set: { isApprovedAuthority: true } });
+
+    res.json({ message: 'Success!' });
+});
+
 module.exports = admin;

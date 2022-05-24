@@ -138,6 +138,7 @@ const MapComponent = () => {
     const [markerId, setMarkerId] = useState('');
     const [currentUserId, setCurrentUserId] = useState('');
     const [userType, setUserType] = useState('');
+    const [isApprovedAuthority, setIsApprovedAuthority] = useState(false);
 
     const [slides, setSlides] = useState([]);
 
@@ -288,6 +289,8 @@ const MapComponent = () => {
         setIsMilitary(marker.isMilitary);
 
         setUserType(currentUser.userType);
+
+        setIsApprovedAuthority(currentUser.isApprovedAuthority);
 
         setMarkerId(marker._id);
 
@@ -586,7 +589,7 @@ const MapComponent = () => {
                             onClick={() => handleRatingChange(false)}
                         />
                     </div>
-                    {userType >= 2 ? (
+                    {userType >= 2 && isApprovedAuthority ? (
                         <h5>
                             Resolve the issue:{' '}
                             <DoneOutlineIcon

@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Map from './map/Map';
 import Login from './components/Login';
-import Register from './components/Register';
+import { Register } from './components/Register';
 import { Profile } from './components/Profile';
 import { ActivateWindow } from './components/Activate';
 import { AdminPage } from './components/AdminPage';

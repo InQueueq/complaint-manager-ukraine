@@ -197,3 +197,11 @@ export const getUnapprovedAuthorities = async () => {
 
     return res.data;
 };
+
+export const approveAuthorityByUserId = async (userId) => {
+    const res = await axios.post('/admin/authorities/approve', {
+        _id: userId,
+    });
+
+    return res.data;
+};
