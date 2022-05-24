@@ -100,6 +100,7 @@ export const createComplaint = async (complaint) => {
         latitude: complaint.latitude,
         creator: complaint.creator,
         inProcess: complaint.inProcess,
+        isMilitary: complaint.isMilitary,
         region: complaint.region,
         createdAt: complaint.createdAt,
         rating: 0,
@@ -145,7 +146,7 @@ export const getMarkerImages = async (markerId) => {
 };
 
 export const getUser = async (userId) => {
-    const res = await axios.get(`users/${userId}`);
+    const res = await axios.get(`/users/${userId}`);
 
     return res;
 };
@@ -183,4 +184,16 @@ export const updateMarkerStatus = async (markerId, inProcess) => {
     });
 
     return res;
+};
+
+export const getUnresolvedMarkersCountByUserId = async (userId) => {
+    const res = await axios.get(`/complaints/count/${userId}`);
+
+    return res.data;
+};
+
+export const getUnapprovedAuthorities = async () => {
+    const res = await axios.get(`/admin/authorities/unapproved`);
+
+    return res.data;
 };

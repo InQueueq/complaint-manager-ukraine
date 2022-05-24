@@ -28,6 +28,7 @@ import React, { Component, useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { useHistory } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
+import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import jwt_decode from 'jwt-decode';
 
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
@@ -39,7 +40,7 @@ import 'react-gallery-carousel/dist/index.css';
 
 import userMarkerImage from './images/user-marker.png';
 import complaintMarkerImage from './images/complaint-marker.png';
-
+import militaryComplaintMarkerImage from './images/military-complaint-marker.png';
 import resolvedComplaintMarkerImage from './images/resolved-complaint-marker.png';
 import './Map.css';
 
@@ -57,6 +58,7 @@ import {
     changeRating,
     updateMarkerStatus,
     getRegions,
+    getUnresolvedMarkersCountByUserId,
 } from '../components/user-functions';
 
 const RegionImages = {
@@ -125,6 +127,8 @@ const MapComponent = () => {
     const [markerIsClicked, showMarkerInfo] = useState(false);
     const [complaintName, setComplaintName] = useState('');
     const [complaintDescription, setComplaintDescription] = useState('');
+    const [complaintLatitude, setComplaintLatitude] = useState('');
+    const [complaintLongitude, setComplaintLongitude] = useState('');
     const [selectedImages, setSelectedImages] = useState([]);
     const [markers, setMarkers] = useState([]);
     const [regionMarkers, setRegionMarkers] = useState([]);
@@ -144,14 +148,26 @@ const MapComponent = () => {
     const [rating, setRating] = useState(0);
 
     const [markerInProcess, setInProcess] = useState(true);
+    const [isMilitary, setIsMilitary] = useState(false);
+
+    const [complaintIsMilitary, setComplaintType] = useState(false);
+
+    const [showPopUp, setShowPopUp] = useState(false);
 
     const history = useHistory();
 
     const handleClose = () => showComponent(false);
     const handleShow = () => showComponent(true);
 
+    const handleShowPopUp = () => setShowPopUp(true);
+    const handleClosePopUp = () => setShowPopUp(false);
+
     const handleCloseMarker = () => showMarkerInfo(false);
     const handleShowMarker = () => showMarkerInfo(true);
+
+    const handleComplaintTypeSwitch = () => {
+        setComplaintType(!complaintIsMilitary);
+    };
 
     useEffect(() => {
         async function fetchData() {
@@ -197,6 +213,14 @@ const MapComponent = () => {
 
         const creatorId = jwt_decode(token).id;
 
+        const { count } = await getUnresolvedMarkersCountByUserId(creatorId);
+
+        if (count >= parseInt(process.env.REACT_APP_MAX_COMPLAINTS_PER_PERSON)) {
+            handleClose();
+            handleShowPopUp();
+            return;
+        }
+
         let regionName;
         for (let i = 0; i < geocode.length; i++) {
             if (geocode[i].types[0] === 'administrative_area_level_1') {
@@ -206,13 +230,17 @@ const MapComponent = () => {
 
         const regionId = (await getRegionId(regionName)).data._id;
 
+        const longitude = complaintLongitude || geolocation.lng;
+        const latitude = complaintLatitude || geolocation.lat;
+
         const complaint = {
             name: complaintName,
             description: complaintDescription,
-            longitude: geolocation.lng,
-            latitude: geolocation.lat,
+            longitude: parseFloat(longitude),
+            latitude: parseFloat(latitude),
             creator: creatorId,
             inProcess: true,
+            isMilitary: complaintIsMilitary,
             region: regionId,
             createdAt: new Date().getTime(),
         };
@@ -257,6 +285,8 @@ const MapComponent = () => {
 
         setInProcess(marker.inProcess);
 
+        setIsMilitary(marker.isMilitary);
+
         setUserType(currentUser.userType);
 
         setMarkerId(marker._id);
@@ -283,7 +313,6 @@ const MapComponent = () => {
     };
 
     const handleRegionMarkerClick = async (markerId) => {
-        console.log(markerId);
         const markersForRegion = (await getMarkersForRegion(markerId)).data.markers;
 
         setMarkers((oldMarkers) => [...oldMarkers, ...markersForRegion]);
@@ -317,68 +346,187 @@ const MapComponent = () => {
         handleCloseMarker();
     };
 
+    const regularComplaintForm = (
+        <form noValidate onSubmit={onSubmit} onError={() => setShowPopUp(true)}>
+            <h1 className='h3 mb-3 font-weight-normal'>Describe the problem</h1>
+            <div className='form-group row'>
+                <label className='col-md-4 col-form-label text-md-right' htmlFor='complaintName'>
+                    Name
+                </label>
+                <div className='col-md-6'>
+                    <input
+                        type='complaintName'
+                        className='form-control'
+                        name='complaintName'
+                        value={complaintName}
+                        onChange={(e) => setComplaintName(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='form-group row'>
+                <label
+                    className='col-md-4 col-form-label text-md-right'
+                    htmlFor='complaintDescription'
+                >
+                    Description
+                </label>
+                <div className='col-md-6'>
+                    <textarea
+                        className='form-control'
+                        id='message-text'
+                        value={complaintDescription}
+                        onChange={(e) => setComplaintDescription(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='form-group row'>
+                <label className='col-md-4 col-form-label text-md-right' htmlFor='images'>
+                    Images
+                </label>
+                <div className='col-md-6'>
+                    <input
+                        type='file'
+                        alt='yourImages'
+                        className='form-control'
+                        name='image'
+                        multiple
+                        accept='.jpg, .jpeg, .png'
+                        onChange={filesSelectedHandler}
+                    />
+                </div>
+            </div>
+        </form>
+    );
+
+    const militaryComplaintForm = (
+        <form noValidate onSubmit={onSubmit} onError={() => setShowPopUp(true)}>
+            <h1 className='h3 mb-3 font-weight-normal'>Describe the problem</h1>
+            <div className='form-group row'>
+                <label className='col-md-4 col-form-label text-md-right' htmlFor='complaintName'>
+                    Name
+                </label>
+                <div className='col-md-6'>
+                    <input
+                        type='complaintName'
+                        className='form-control'
+                        name='complaintName'
+                        value={complaintName}
+                        onChange={(e) => setComplaintName(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='form-group row'>
+                <label
+                    className='col-md-4 col-form-label text-md-right'
+                    htmlFor='complaintDescription'
+                >
+                    Description
+                </label>
+                <div className='col-md-6'>
+                    <textarea
+                        className='form-control'
+                        id='message-text'
+                        value={complaintDescription}
+                        onChange={(e) => setComplaintDescription(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='form-group row'>
+                <label
+                    className='col-md-4 col-form-label text-md-right'
+                    htmlFor='militaryComplaintLatitude'
+                >
+                    Latitude
+                </label>
+                <div className='col-md-6'>
+                    <input
+                        type='complaintLatitude'
+                        className='form-control'
+                        name='complaintLatitude'
+                        value={complaintLatitude}
+                        onChange={(e) => setComplaintLatitude(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='form-group row'>
+                <label
+                    className='col-md-4 col-form-label text-md-right'
+                    htmlFor='militaryComplaintLongitude'
+                >
+                    Longitude
+                </label>
+                <div className='col-md-6'>
+                    <input
+                        type='complaintLongitude'
+                        className='form-control'
+                        name='complaintLongitude'
+                        value={complaintLongitude}
+                        onChange={(e) => setComplaintLongitude(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='form-group row'>
+                <label className='col-md-4 col-form-label text-md-right' htmlFor='images'>
+                    Images
+                </label>
+                <div className='col-md-6'>
+                    <input
+                        type='file'
+                        alt='yourImages'
+                        className='form-control'
+                        name='image'
+                        multiple
+                        accept='.jpg, .jpeg, .png'
+                        onChange={filesSelectedHandler}
+                    />
+                </div>
+            </div>
+        </form>
+    );
+
+    const PopUp = (
+        <Modal
+            show={handleShowPopUp}
+            size='lg'
+            aria-labelledby='contained-modal-title-vcenter'
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id='contained-modal-title-vcenter'>Warning</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <h4>You can't create more complaints</h4>
+                <p>
+                    Dear user, You already have {process.env.REACT_APP_MAX_COMPLAINTS_PER_PERSON}{' '}
+                    unresolved complaints submitted
+                </p>
+                <p>You need to wait some time while your previous complaints are being resolved</p>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={handleClosePopUp}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+
     const ModalWindow = (
         <>
             <Modal dialogClassName='modal-window' show={createIsClicked} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Submit complaint</Modal.Title>
+                    <Modal.Title>
+                        Submit complaint
+                        <div>
+                            <h5>Military complaint mode</h5>
+                            <BootstrapSwitchButton
+                                checked={complaintIsMilitary}
+                                onlabel='On'
+                                offlabel='Off'
+                                onChange={handleComplaintTypeSwitch}
+                            />
+                        </div>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form noValidate onSubmit={onSubmit}>
-                        <h1 className='h3 mb-3 font-weight-normal'>Describe the problem</h1>
-                        <div className='form-group row'>
-                            <label
-                                className='col-md-4 col-form-label text-md-right'
-                                htmlFor='complaintName'
-                            >
-                                Name
-                            </label>
-                            <div className='col-md-6'>
-                                <input
-                                    type='complaintName'
-                                    className='form-control'
-                                    name='complaintName'
-                                    value={complaintName}
-                                    onChange={(e) => setComplaintName(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className='form-group row'>
-                            <label
-                                className='col-md-4 col-form-label text-md-right'
-                                htmlFor='complaintDescription'
-                            >
-                                Description
-                            </label>
-                            <div className='col-md-6'>
-                                <textarea
-                                    className='form-control'
-                                    id='message-text'
-                                    value={complaintDescription}
-                                    onChange={(e) => setComplaintDescription(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className='form-group row'>
-                            <label
-                                className='col-md-4 col-form-label text-md-right'
-                                htmlFor='images'
-                            >
-                                Images
-                            </label>
-                            <div className='col-md-6'>
-                                <input
-                                    type='file'
-                                    alt='yourImages'
-                                    className='form-control'
-                                    name='image'
-                                    multiple
-                                    accept='.jpg, .jpeg, .png'
-                                    onChange={filesSelectedHandler}
-                                />
-                            </div>
-                        </div>
-                    </form>
+                    {!complaintIsMilitary ? regularComplaintForm : militaryComplaintForm}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant='secondary' onClick={handleClose}>
@@ -400,6 +548,13 @@ const MapComponent = () => {
                     <div style={{ paddingLeft: '10%' }}>
                         {!markerInProcess ? (
                             <h2 style={{ color: 'green' }}>Issue is resolved!</h2>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                    <div style={{ paddingLeft: '10%' }}>
+                        {isMilitary ? (
+                            <h2 style={{ color: 'green' }}>Issue is military!</h2>
                         ) : (
                             <></>
                         )}
@@ -431,7 +586,7 @@ const MapComponent = () => {
                             onClick={() => handleRatingChange(false)}
                         />
                     </div>
-                    {userType === 2 ? (
+                    {userType >= 2 ? (
                         <h5>
                             Resolve the issue:{' '}
                             <DoneOutlineIcon
@@ -500,6 +655,7 @@ const MapComponent = () => {
         >
             {createIsClicked ? ModalWindow : null}
             {markerIsClicked ? ModalWindowMarker : null}
+            {showPopUp ? PopUp : null}
             {markers.map((mapMarker) => {
                 return (
                     <Marker
@@ -512,7 +668,9 @@ const MapComponent = () => {
                             marker.setAnimation(window.google.maps.Animation.BOUNCE);
                         }}
                         icon={
-                            mapMarker.inProcess
+                            mapMarker.isMilitary
+                                ? militaryComplaintMarkerImage
+                                : mapMarker.inProcess
                                 ? complaintMarkerImage
                                 : resolvedComplaintMarkerImage
                         }

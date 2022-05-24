@@ -205,7 +205,6 @@ const Profile = () => {
     useEffect(() => {
         async function fetchData() {
             await validateToken(token);
-
             const currentUserId = jwt_decode(token).id;
 
             const { markers } = (await getMarkersOfUser(currentUserId)).data;

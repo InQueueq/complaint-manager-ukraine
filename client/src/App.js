@@ -7,6 +7,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import { Profile } from './components/Profile';
 import { ActivateWindow } from './components/Activate';
+import { AdminPage } from './components/AdminPage';
 
 class App extends Component {
     render() {
@@ -20,6 +21,7 @@ class App extends Component {
                         <Route exact path='/login' component={Login} />
                         <Route path='/profile' component={Profile} />
                         <Route path='/activate/:token?' component={ActivateWindow} />
+                        <Route path='/admin' component={AdminPage} />
                     </div>
                     <div className='container' id='mapView'>
                         <Route exact path='/map' component={Map} />
