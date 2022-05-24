@@ -171,7 +171,7 @@ const MyComplaints = (complaints) => (
                     <li className='font-weight-bold pl-2 pr-5 mt-2 mb-2 row' key={complaint._id}>
                         <h5 className='col-sm'>{complaint.name}</h5>
                         <h5 className='col-sm'>
-                            Is in progress? {complaint.inProcess ? 'Yes' : 'no'}
+                            {complaint.inProcess ? 'In Progress' : 'Resolved'}
                         </h5>
                         <h5 className='col-sm'>Rating: {complaint.rating}</h5>
                         <h5 className='ml-auto'>

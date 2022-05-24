@@ -198,10 +198,50 @@ export const getUnapprovedAuthorities = async () => {
     return res.data;
 };
 
+export const getAuthorities = async () => {
+    const res = await axios.get(`/admin/authorities`);
+
+    return res.data;
+};
+
 export const approveAuthorityByUserId = async (userId) => {
     const res = await axios.post('/admin/authorities/approve', {
         _id: userId,
     });
+
+    return res.data;
+};
+
+export const deleteAuthorityByUserId = async (userId) => {
+    const res = await axios.delete(`/admin/authorities/${userId}`);
+
+    return res.data;
+};
+
+export const deleteMarkersByUserId = async (userId) => {
+    const res = await axios.delete(`/complaints/user/${userId}`);
+
+    return res.data;
+};
+
+export const deleteImagesByMarkerIds = async (markerIds) => {
+    const res = await axios.post(`/images/complaints/remove`, {
+        ids: markerIds,
+    });
+
+    return res.data;
+};
+
+export const deleteLikesByMarkerIds = async (markerIds) => {
+    const res = await axios.post(`/likes/complaints/remove`, {
+        ids: markerIds,
+    });
+
+    return res.data;
+};
+
+export const deleteLikesByUserId = async (userId) => {
+    const res = await axios.delete(`/likes/authorities/${userId}`);
 
     return res.data;
 };

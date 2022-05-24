@@ -11,6 +11,12 @@ import {
     validateToken,
     getUnapprovedAuthorities,
     approveAuthorityByUserId,
+    getAuthorities,
+    deleteAuthorityByUserId,
+    deleteMarkersByUserId,
+    deleteImagesByMarkerIds,
+    deleteLikesByMarkerIds,
+    deleteLikesByUserId,
 } from './user-functions';
 
 const S3_BUCKET = process.env.REACT_APP_S3_BUCKET;
@@ -32,6 +38,133 @@ const forbidden = (
     </div>
 );
 
+const emptyS3Directory = async (bucket, dir) => {
+    const listParams = {
+        Bucket: bucket,
+        Prefix: dir,
+    };
+
+    const listedObjects = await documentsBucket.listObjectsV2(listParams).promise();
+
+    if (listedObjects.Contents.length === 0) return;
+
+    const deleteParams = {
+        Bucket: bucket,
+        Delete: { Objects: [] },
+    };
+
+    listedObjects.Contents.forEach(({ Key }) => {
+        deleteParams.Delete.Objects.push({ Key });
+    });
+
+    await documentsBucket.deleteObjects(deleteParams).promise();
+};
+
+const Authorities = () => {
+    const [authorities, setAuthorities] = useState([]);
+    const [currentAuthorityId, setCurrentAuthorityId] = useState('');
+    const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+
+    const token = localStorage.token;
+
+    useEffect(() => {
+        async function fetchData() {
+            await validateToken(token);
+
+            const { authorities } = await getAuthorities();
+            return authorities;
+        }
+
+        fetchData().then((res) => {
+            setAuthorities(res);
+        });
+    }, [token]);
+
+    const openDeleteModal = async (authorityId) => {
+        setCurrentAuthorityId(authorityId);
+        setDeleteModalIsOpen(true);
+    };
+
+    const closeDeleteModal = async () => {
+        setCurrentAuthorityId('');
+        setDeleteModalIsOpen(false);
+    };
+
+    const deleteAuthority = async (userId) => {
+        await deleteAuthorityByUserId(userId);
+        const markerIds = (await deleteMarkersByUserId(userId)).markers;
+        await deleteImagesByMarkerIds(markerIds);
+        await deleteLikesByUserId(userId);
+        await deleteLikesByMarkerIds(markerIds);
+
+        emptyS3Directory(S3_BUCKET, userId + '/');
+
+        const newList = authorities.filter((item) => item._id !== userId);
+
+        setAuthorities(newList);
+        closeDeleteModal();
+    };
+
+    const DeleteModal = (
+        <Modal centered show={openDeleteModal} onHide={closeDeleteModal}>
+            <Modal.Header closeButton>
+                <Modal.Title>Warning</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Are you sure you want to delete this user?</Modal.Body>
+            <Modal.Footer>
+                <Button
+                    variant='outline-danger'
+                    onClick={() => deleteAuthority(currentAuthorityId)}
+                >
+                    Delete
+                </Button>
+                <Button variant='outline-info' onClick={closeDeleteModal}>
+                    Close
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+
+    return (
+        <ul className='card'>
+            {authorities.length ? (
+                authorities.map((authority) => (
+                    <div>
+                        <li
+                            className='font-weight-bold pl-2 pr-5 mt-2 mb-2 row'
+                            key={authority._id}
+                        >
+                            <h5 className='col-sm'>{authority.firstName}</h5>
+                            <h5 className='col-sm'> {authority.lastName}</h5>
+                            <h5 className='col-sm'> {authority.email}</h5>
+                            <h5 className='col-sm'>
+                                {authority.isApprovedAuthority ? 'Approved' : 'Not approved'}
+                            </h5>
+                            <button
+                                type='button'
+                                class='btn btn-outline-danger'
+                                onClick={() => openDeleteModal(authority._id)}
+                            >
+                                Delete
+                            </button>
+                        </li>
+                        <div
+                            style={{
+                                width: '95%',
+                                borderBottom: '1px solid black',
+                                position: 'absolute',
+                            }}
+                        ></div>
+                    </div>
+                ))
+            ) : (
+                <label className='font-weight-bold'> No authorities</label>
+            )}
+            {deleteModalIsOpen ? DeleteModal : null}
+        </ul>
+    );
+};
+
 const UnapprovedAuthorities = () => {
     const [authorities, setAuthorities] = useState([]);
     const [documentsModalIsOpen, setDocumentsModalIsOpen] = useState(false);
@@ -50,6 +183,7 @@ const UnapprovedAuthorities = () => {
 
         setCurrentAuthorityDocuments(mappedDocs);
     };
+
     const closeDocumentsModal = () => setDocumentsModalIsOpen(false);
 
     const token = localStorage.token;
@@ -210,8 +344,11 @@ const AdminPage = () => {
             </ul>
 
             <Switch>
-                <Route path={`${match.path}/authorities`}>
+                <Route path={`${match.path}/authorities/unapproved`}>
                     <UnapprovedAuthorities />
+                </Route>
+                <Route path={`${match.path}/authorities`}>
+                    <Authorities />
                 </Route>
             </Switch>
         </div>

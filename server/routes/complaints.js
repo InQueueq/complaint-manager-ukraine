@@ -60,6 +60,15 @@ complaints.get('/user/:id', async (req, res) => {
     res.json({ markers });
 });
 
+complaints.delete('/user/:id', async (req, res) => {
+    const id = req.params.id;
+
+    const markers = await Marker.find({ creator: id }, { id: 1 });
+    await Marker.deleteMany({ creator: id });
+
+    res.json({ markers });
+});
+
 complaints.get('/count/:id', async (req, res) => {
     const id = req.params.id;
     const count = await Marker.count({ creator: id, inProcess: true });
