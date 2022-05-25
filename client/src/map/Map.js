@@ -350,8 +350,8 @@ const MapComponent = () => {
     };
 
     const regularComplaintForm = (
-        <form noValidate onSubmit={onSubmit} onError={() => setShowPopUp(true)}>
-            <h1 className='h3 mb-3 font-weight-normal'>Describe the problem</h1>
+        <form onSubmit={onSubmit} onError={() => setShowPopUp(true)}>
+            <h5 className='h5 mb-3 font-weight-normal'>Describe the problem</h5>
             <div className='form-group row'>
                 <label className='col-md-4 col-form-label text-md-right' htmlFor='complaintName'>
                     Name
@@ -361,6 +361,7 @@ const MapComponent = () => {
                         type='complaintName'
                         className='form-control'
                         name='complaintName'
+                        required
                         value={complaintName}
                         onChange={(e) => setComplaintName(e.target.value)}
                     />
@@ -378,6 +379,7 @@ const MapComponent = () => {
                         className='form-control'
                         id='message-text'
                         value={complaintDescription}
+                        required
                         onChange={(e) => setComplaintDescription(e.target.value)}
                     />
                 </div>
@@ -402,8 +404,8 @@ const MapComponent = () => {
     );
 
     const militaryComplaintForm = (
-        <form noValidate onSubmit={onSubmit} onError={() => setShowPopUp(true)}>
-            <h1 className='h3 mb-3 font-weight-normal'>Describe the problem</h1>
+        <form onSubmit={onSubmit} onError={() => setShowPopUp(true)}>
+            <h5 className='h5 mb-3 font-weight-normal'>Describe the problem</h5>
             <div className='form-group row'>
                 <label className='col-md-4 col-form-label text-md-right' htmlFor='complaintName'>
                     Name
@@ -413,6 +415,7 @@ const MapComponent = () => {
                         type='complaintName'
                         className='form-control'
                         name='complaintName'
+                        required
                         value={complaintName}
                         onChange={(e) => setComplaintName(e.target.value)}
                     />
@@ -429,6 +432,7 @@ const MapComponent = () => {
                     <textarea
                         className='form-control'
                         id='message-text'
+                        required
                         value={complaintDescription}
                         onChange={(e) => setComplaintDescription(e.target.value)}
                     />
@@ -446,6 +450,7 @@ const MapComponent = () => {
                         type='complaintLatitude'
                         className='form-control'
                         name='complaintLatitude'
+                        required
                         value={complaintLatitude}
                         onChange={(e) => setComplaintLatitude(e.target.value)}
                     />
@@ -463,6 +468,7 @@ const MapComponent = () => {
                         type='complaintLongitude'
                         className='form-control'
                         name='complaintLongitude'
+                        required
                         value={complaintLongitude}
                         onChange={(e) => setComplaintLongitude(e.target.value)}
                     />
@@ -483,6 +489,14 @@ const MapComponent = () => {
                         onChange={filesSelectedHandler}
                     />
                 </div>
+            </div>
+            <div>
+                <a
+                    style={{ color: 'red' }}
+                    href='https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3DDesktop'
+                >
+                    Need help with finding coordinates?
+                </a>
             </div>
         </form>
     );
@@ -515,10 +529,12 @@ const MapComponent = () => {
         <>
             <Modal dialogClassName='modal-window' show={createIsClicked} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>
+                    <Modal.Title style={{ fontWeight: 'bold' }}>
                         Submit complaint
                         <div>
-                            <h5>Military complaint mode</h5>
+                            <h5 style={{ marginTop: '10%', textDecoration: 'underline' }}>
+                                Military complaint mode
+                            </h5>
                             <BootstrapSwitchButton
                                 checked={complaintIsMilitary}
                                 onlabel='On'
@@ -532,11 +548,11 @@ const MapComponent = () => {
                     {!complaintIsMilitary ? regularComplaintForm : militaryComplaintForm}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant='secondary' onClick={handleClose}>
+                    <Button variant='outline-danger' onClick={handleClose}>
                         Close
                     </Button>
-                    <Button variant='primary' onClick={onSubmit}>
-                        Save Changes
+                    <Button variant='outline-primary' onClick={onSubmit}>
+                        Submit
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -547,36 +563,40 @@ const MapComponent = () => {
         <>
             <Modal dialogClassName='modal-window' show={markerIsClicked} onHide={handleCloseMarker}>
                 <Modal.Header closeButton>
-                    <Modal.Title style={{ color: '#b2224f' }}>{currentMarkerName}</Modal.Title>
-                    <div style={{ paddingLeft: '10%' }}>
-                        {!markerInProcess ? (
-                            <h2 style={{ color: 'green' }}>Issue is resolved!</h2>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                    <div style={{ paddingLeft: '10%' }}>
-                        {isMilitary ? (
-                            <h2 style={{ color: 'green' }}>Issue is military!</h2>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
+                    <Modal.Title style={{ color: '#000000', fontWeight: 'bold' }}>
+                        {currentMarkerName}
+                        <div style={{ marginTop: '5%', textDecoration: 'green underline' }}>
+                            {!markerInProcess ? (
+                                <h2 style={{ color: 'green' }}>Issue is resolved!</h2>
+                            ) : (
+                                <></>
+                            )}
+                        </div>
+                        <div style={{ marginTop: '5%', textDecoration: 'red underline' }}>
+                            {isMilitary ? (
+                                <h2 style={{ color: 'red' }}>Issue is military!</h2>
+                            ) : (
+                                <></>
+                            )}
+                        </div>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Carousel images={slides} />
                     <div style={{ marginTop: '5%' }}>
                         <h5
+                            id='markerDescription'
                             style={{
-                                paddingLeft: '10%',
-                                paddingRight: '10%',
+                                paddingLeft: '5%',
+                                paddingRight: '5%',
                                 wordWrap: 'break-word',
+                                textAlign: 'justify',
                             }}
                         >
                             {currentMarkerDescription}
                         </h5>
                     </div>
-                    <div style={{ left: '10px', padding: '2%' }}>
+                    <div style={{ left: '10px', paddingTop: '3%', paddingLeft: '5%' }}>
                         <h5>Rating: {rating}</h5>
                         <ThumbUpIcon
                             id='thumbUp'
@@ -589,14 +609,18 @@ const MapComponent = () => {
                             onClick={() => handleRatingChange(false)}
                         />
                     </div>
-                    {userType >= 2 && isApprovedAuthority ? (
-                        <h5>
-                            Resolve the issue:{' '}
-                            <DoneOutlineIcon
-                                onClick={handleResolveComplaint}
-                                style={{ color: '#32CD32' }}
-                            />
-                        </h5>
+                    {userType >= 2 && isApprovedAuthority && markerInProcess ? (
+                        <div style={{ marginTop: '5%' }}>
+                            <h5>
+                                <Button
+                                    variant='outline-success'
+                                    onClick={handleResolveComplaint}
+                                    style={{ color: '#32CD32' }}
+                                >
+                                    Resolve the issue:
+                                </Button>
+                            </h5>
+                        </div>
                     ) : (
                         <></>
                     )}

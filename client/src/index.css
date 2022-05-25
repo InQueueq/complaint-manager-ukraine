@@ -3,8 +3,7 @@ html {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Armata', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
@@ -43,6 +42,35 @@ a.nav-link {
 
 a.nav-link:hover {
     color: black;
+}
+
+#unapprovedAuthorities a:hover {
+    color: white !important;
+    -webkit-transition: color 0.3s;
+    transition: color 0.3s;
+}
+
+#allAuthorities a:hover {
+    color: white !important;
+    -webkit-transition: color 0.3s;
+    transition: color 0.3s;
+}
+
+#myComplaints a:hover {
+    color: white !important;
+    -webkit-transition: color 0.3s;
+    transition: color 0.3s;
+}
+
+#myProfileInformation a:hover {
+    color: white !important;
+    -webkit-transition: color 0.3s;
+    transition: color 0.3s;
+}
+
+#markerDescription::first-letter {
+    font-size: 300%;
+    color: #000000;
 }
 
 @media (min-width: 1200px) {

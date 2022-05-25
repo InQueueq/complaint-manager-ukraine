@@ -47,11 +47,29 @@ class Login extends Component {
     }
     render() {
         return this.state.access ? (
-            <div className='container'>
+            <div
+                className='container'
+                style={{
+                    marginTop: '5%',
+                    paddingBottom: '5%',
+                    border: '2px black solid',
+                }}
+            >
                 <div className='row'>
                     <div className='col-md-6 mt-5 mx-auto'>
                         <form noValidate onSubmit={this.onSubmit}>
-                            <h1 className='h3 mb-3 font-weight-normal'>Sign In</h1>
+                            <h1
+                                style={{
+                                    backgroundColor: '#D9D9D9',
+                                    marginRight: '75%',
+                                    borderRadius: 20,
+                                    padding: 7,
+                                    textAlign: 'center',
+                                }}
+                                className='h3 mb-3 font-weight-normal'
+                            >
+                                Login
+                            </h1>
                             <div className='form-group row'>
                                 <label
                                     className='col-md-4 col-form-label text-md-right'
@@ -87,7 +105,7 @@ class Login extends Component {
                                 </div>
                             </div>
                             <div className='col-md-6 offset-md-5'>
-                                <button type='submit' className='btn btn-primary'>
+                                <button type='submit' className='btn btn-outline-dark'>
                                     Sign in
                                 </button>
                             </div>
