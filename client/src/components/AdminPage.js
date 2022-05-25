@@ -126,16 +126,23 @@ const Authorities = () => {
     );
 
     return (
-        <ul className='card'>
+        <ul className='card' style={{ listStyleType: 'none', paddingLeft: 0 }}>
             {authorities.length ? (
                 authorities.map((authority) => (
-                    <div>
+                    <div
+                        style={{
+                            backgroundColor: '#D9D9D9',
+                            borderRadius: 30,
+                        }}
+                    >
                         <li
                             className='font-weight-bold pl-2 pr-5 mt-2 mb-2 row'
                             key={authority._id}
                         >
-                            <h5 className='col-sm'>{authority.firstName}</h5>
-                            <h5 className='col-sm'> {authority.lastName}</h5>
+                            <h5 className='col-sm'> &#128954;</h5>
+                            <h5 className='col-sm'>
+                                {authority.firstName} {authority.lastName}
+                            </h5>
                             <h5 className='col-sm'> {authority.email}</h5>
                             <h5 className='col-sm'>
                                 {authority.isApprovedAuthority ? 'Approved' : 'Not approved'}
@@ -158,7 +165,16 @@ const Authorities = () => {
                     </div>
                 ))
             ) : (
-                <label className='font-weight-bold'> No authorities</label>
+                <div
+                    style={{
+                        backgroundColor: '#D9D9D9',
+                    }}
+                >
+                    <li style={{ textAlign: 'center' }} className='font-weight-bold'>
+                        {' '}
+                        No authorities
+                    </li>
+                </div>
             )}
             {deleteModalIsOpen ? DeleteModal : null}
         </ul>
@@ -222,9 +238,9 @@ const UnapprovedAuthorities = () => {
     const DocumentsModal = (
         <Modal size='lg' centered show={documentsModalIsOpen} onHide={closeDocumentsModal}>
             <Modal.Header closeButton>
-                <Modal.Title>{currentAuthorityId}</Modal.Title>
+                <Modal.Title>Authority's proofs</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+            <Modal.Body>Please check them carefully before approving</Modal.Body>
             <Carousel images={currentAuthorityDocuments} />
             <Modal.Footer>
                 <Button variant='secondary' onClick={closeDocumentsModal}>
@@ -235,16 +251,23 @@ const UnapprovedAuthorities = () => {
     );
 
     return (
-        <ul className='card'>
+        <ul className='card' style={{ listStyleType: 'none', paddingLeft: 0, border: 0 }}>
             {authorities.length ? (
                 authorities.map((authority) => (
-                    <div>
+                    <div
+                        style={{
+                            backgroundColor: '#D9D9D9',
+                            borderRadius: 30,
+                        }}
+                    >
                         <li
                             className='font-weight-bold pl-2 pr-5 mt-2 mb-2 row'
                             key={authority._id}
                         >
-                            <h5 className='col-sm'>{authority.firstName}</h5>
-                            <h5 className='col-sm'> {authority.lastName}</h5>
+                            <h5 className='col-sm'> &#128954;</h5>
+                            <h5 className='col-sm'>
+                                {authority.firstName} {authority.lastName}
+                            </h5>
                             <h5 className='col-sm'> {authority.email}</h5>
                             <button
                                 style={{ 'margin-right': '20px' }}
@@ -272,7 +295,16 @@ const UnapprovedAuthorities = () => {
                     </div>
                 ))
             ) : (
-                <label className='font-weight-bold'> No unapproved authorities</label>
+                <div
+                    style={{
+                        backgroundColor: '#D9D9D9',
+                    }}
+                >
+                    <li style={{ textAlign: 'center' }} className='font-weight-bold'>
+                        {' '}
+                        No unapproved authorities
+                    </li>
+                </div>
             )}
             {documentsModalIsOpen ? DocumentsModal : null}
         </ul>
@@ -312,32 +344,52 @@ const AdminPage = () => {
     ) : (
         <div className='container'>
             <div className='d-flex justify-content-center mb-3'>
-                <h2>ADMIN PAGE</h2>
+                <h2
+                    style={{
+                        backgroundColor: '#C1C1C1',
+                        borderRadius: 30,
+                        paddingLeft: 40,
+                        paddingRight: 40,
+                        paddingTop: 20,
+                        paddingBottom: 15,
+                        marginTop: '2%',
+                        fontSize: 20,
+                    }}
+                >
+                    ADMIN PAGE
+                </h2>
             </div>
 
-            <ul style={{ display: 'flex', justifyContent: 'center' }}>
+            <ul
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-evenly',
+                    backgroundColor: '#C1C1C1',
+                    borderRadius: 30,
+                }}
+            >
                 <li
+                    id='unapprovedAuthorities'
                     style={{
                         display: 'inline',
                         textTransform: 'uppercase',
-                        backgroundColor: 'gray',
                         padding: '1em 1.5em',
                     }}
                 >
-                    <Link style={{ color: 'white' }} to={`${match.url}/authorities/unapproved`}>
+                    <Link style={{ color: 'black' }} to={`${match.url}/authorities/unapproved`}>
                         UNAPPROVED AUTHORITIES
                     </Link>
                 </li>
                 <li
+                    id='allAuthorities'
                     style={{
                         display: 'inline',
                         paddingLeft: '10%',
                         textTransform: 'uppercase',
-                        backgroundColor: 'gray',
                         padding: '1em 1.5em',
                     }}
                 >
-                    <Link style={{ color: 'white' }} to={`${match.url}/authorities`}>
+                    <Link style={{ color: 'black' }} to={`${match.url}/authorities`}>
                         ALL AUTHORITIES
                     </Link>
                 </li>

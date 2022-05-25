@@ -151,12 +151,30 @@ const Register = (props) => {
     );
 
     return (
-        <div className='container'>
+        <div
+            className='container'
+            style={{
+                marginTop: '5%',
+                paddingBottom: '5%',
+                border: '2px black solid',
+            }}
+        >
             {showActivationPopUp ? PopUp : null}
             <div className='row'>
                 <div className='col-md-6 mt-5 mx-auto'>
                     <form onSubmit={onSubmit}>
-                        <h1 className='h3 mb-3 font-weight-normal'>Register</h1>
+                        <h1
+                            className='h3 mb-3 font-weight-normal'
+                            style={{
+                                backgroundColor: '#D9D9D9',
+                                marginRight: '75%',
+                                borderRadius: 20,
+                                padding: 7,
+                                textAlign: 'center',
+                            }}
+                        >
+                            Register
+                        </h1>
                         <div className='form-group row'>
                             <label
                                 className='col-md-4 col-form-label text-md-right'
@@ -248,7 +266,7 @@ const Register = (props) => {
                             </div>
                         </div>
                         <div className='col-md-6 offset-md-5'>
-                            <button type='submit' className='btn btn-primary'>
+                            <button type='submit' className='btn btn-outline-dark'>
                                 Register
                             </button>
                         </div>
