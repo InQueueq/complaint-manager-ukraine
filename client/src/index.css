@@ -69,7 +69,7 @@ a.nav-link:hover {
 }
 
 #markerDescription::first-letter {
-    font-size: 300%;
+    font-size: 200%;
     color: #000000;
 }
 
